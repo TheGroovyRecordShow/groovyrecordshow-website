@@ -65,11 +65,6 @@
         <p>Radio show is: <b>Offline</b><br></p>
 
         <p>The Groovy Record Show is currently off the air.</p>
-        Next scheduled show:<br>
-
-        <b id="next-show-date">December 22nd at 6pm</b>
-        <script src="calculateNextShow.js"></script>
-
         </div>
         
         <div id="online-status" style="display: none;">
@@ -79,6 +74,10 @@
             <!-- Audio feed is available here or listen at <a  href="https://gutsyradio.org">GUTSYradio.org</a><br> -->
 
         </div>
+        <p>Next scheduled show:<br>
+            <b id="next-show-date">Checking GUTSY schedule…</b>
+        </p>
+        <script src="calculateNextShow.js"></script>
         <script>(async () => {
             if(await showIsLive()){
                 document.getElementById("offline-status").style.display = "none";
