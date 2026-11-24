@@ -61,43 +61,38 @@ async function firstCalenderItem(matchString) {
     }
 }
 
-function toHumanDate(eventData){
-
-const startTime = eventData.dateTime
-const timeZone = eventData.timeZone
-
-// Convert timestamp to user's local time
-const userLocalTime = new Date(startTime);
-const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const localTime = userLocalTime.toLocaleString('en-US', { timeZone: userTimezone });
-
-let hour = userLocalTime.getHours();
-const minute = userLocalTime.getMinutes();
-
-const PMorAM = hour >= 12 ? 'pm' : 'am';
-
-if (hour > 12) {
-    hour = hour - 12;
+function formatTimeInZone(date, timeZone) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        timeZoneName: 'short'
+    }).formatToParts(date);
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    return `${values.hour}:${values.minute} ${values.dayPeriod} ${values.timeZoneName}`;
 }
 
-// Format the date in human-readable form
-const ordinalSuffix = (n) => {
-    let number = Number(n);
-    if(number < 20 && number > 10) return "th"
-    number = number % 10;
-    if(number === 1) return "st"
-    if(number === 2) return "nd"
-    if(number === 3) return "rd"
-    return "th"
-};
+function toHumanDate(eventData) {
+    const showDate = new Date(eventData.dateTime);
+    const pacificDate = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        month: 'long',
+        day: 'numeric'
+    }).formatToParts(showDate);
+    const dateParts = Object.fromEntries(pacificDate.map(part => [part.type, part.value]));
+    const day = Number(dateParts.day);
+    const ordinalSuffix = (number) => {
+        if (number % 100 >= 11 && number % 100 <= 13) return 'th';
+        if (number % 10 === 1) return 'st';
+        if (number % 10 === 2) return 'nd';
+        if (number % 10 === 3) return 'rd';
+        return 'th';
+    };
 
-const date = userLocalTime.getDate();
-const formattedDate = `${date}${ordinalSuffix(date)}`;
-// get month name
-const month = userLocalTime.toLocaleString('en-US', { month: 'long' });
-
-// // Display the formatted date and time
-return `${month} ${formattedDate} at ${hour}:${minute < 10 ? '0' : ''}${minute} ${PMorAM}`
+    const pacificTime = formatTimeInZone(showDate, 'America/Los_Angeles');
+    const easternTime = formatTimeInZone(showDate, 'America/New_York');
+    return `${dateParts.month} ${day}${ordinalSuffix(day)} at ${pacificTime} / ${easternTime}`;
 }
 
 
