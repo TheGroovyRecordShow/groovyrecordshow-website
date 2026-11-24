@@ -1,17 +1,34 @@
-async function showIsLive() {
-    const NAME_TO_CHECK = "Paul from CA"
-    try {
-        const response = await fetch('https://public.radio.co/stations/s369d6f962/status');
-        if (!response.ok) return false;
+const GUTSY_STATUS_URL = "https://broadcast.gutsyradio.org/api/nowplaying/gutsy_radio";
 
-        const { source } = await response.json();
-        // console.log(source?.collaborator?.name)
-        return source?.collaborator?.name == NAME_TO_CHECK || false;
+async function updateShowStatus() {
+    const statusLabel = document.getElementById("show-status-label");
+    const statusMessage = document.getElementById("show-status-message");
+    if (!statusLabel || !statusMessage) return;
+
+    try {
+        const response = await fetch(GUTSY_STATUS_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error("GUTSY status request failed");
+
+        const station = await response.json();
+        if (typeof station.live?.is_live !== "boolean") {
+            throw new Error("GUTSY live status is missing");
+        }
+
+        if (station.live.is_live) {
+            statusLabel.textContent = "Live";
+            statusMessage.textContent = "A live show is currently on air at GUTSY Radio.";
+        } else {
+            statusLabel.textContent = "Off Air";
+            statusMessage.textContent = "No live show is currently on air at GUTSY Radio.";
+        }
     } catch (error) {
-        console.error('Error:', error);
-        return false;
+        statusLabel.textContent = "Unavailable";
+        statusMessage.textContent = "GUTSY Radio's live status could not be checked right now.";
     }
 }
+
+updateShowStatus();
+window.setInterval(updateShowStatus, 60000);
 
 
 function handleInputChange(){
