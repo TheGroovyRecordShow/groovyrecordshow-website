@@ -275,7 +275,7 @@ body {
     word-wrap: break-word;
     overflow-wrap: break-word;
     line-height: 1.8;
-    color: #444;
+    color: #fff;
     font-size: larger;
   }
 
@@ -403,7 +403,7 @@ body {
   @media(prefers-color-scheme:dark) {
     body {
       /* background-color: rgb(19 30 32); */
-      color: #ddd
+      color: #fff
     }
 
     h2{
