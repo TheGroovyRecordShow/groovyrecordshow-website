@@ -56,51 +56,63 @@ async function getGistTextContent(gistId){
 
 
 
+const SONG_REQUEST_ENDPOINT = "https://YOUR-WORKER-SUBDOMAIN.workers.dev/song-request";
+
 async function sendContact(ev) {
     ev.preventDefault();
 
-    const runCount = parseInt(getCookie('runCount')) || 0;
+    const form = ev.currentTarget;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const runCount = parseInt(getCookie("runCount"), 10) || 0;
+    const senderName = document.getElementById("nameInput").value.trim();
+    const songRequest = document.getElementById("messageInput").value.trim();
+    const honeypot = document.getElementById("website").value.trim();
 
     if (runCount >= 2) {
-        alert("To many requests! Please try again later.")
-        console.log('Function has already been run two times. Not running anymore.');
+        alert("You have already sent two requests. Please try again later.");
         return;
     }
 
-
-    const senderEmail = document.getElementById('nameInput').value;
-    const senderMessage = document.getElementById('messageInput').value;
-
-    const webhookBody = {
-      embeds: [{
-        title: 'New Song Request',
-        fields: [
-          { name: 'Name', value: senderEmail },
-          { name: 'Song', value: senderMessage }
-        ]
-      }],
-    };
-
-    const webhookUrl = 'https://discord.com/api/webhooks/1178973102420541521/h83f7Vy2VMtdx9Ir0i13djXrjxJ6w4ti6elxiycWE3x60eGu2oSS_i1iT3b5IoZ_Q1JT';
-
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(webhookBody),
-    });
-    const result = response.ok
-    const msg = result ? 'Song request sent successfully!' : 'Sorry, something went wrong';
-    alert(msg);
-
-    if(result){
-        setCookie('runCount', runCount + 1, 10);
+    if (!songRequest) {
+        alert("Please enter a song request before submitting.");
+        return;
     }
-  }
 
+    if (SONG_REQUEST_ENDPOINT.includes("YOUR-WORKER-SUBDOMAIN")) {
+        alert("Song requests are being set up. Please try again later.");
+        return;
+    }
 
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending…";
+    }
 
+    try {
+        const response = await fetch(SONG_REQUEST_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: senderName, song: songRequest, website: honeypot })
+        });
+
+        if (!response.ok) {
+            throw new Error("The request could not be delivered.");
+        }
+
+        alert("Song request sent successfully!");
+        setCookie("runCount", runCount + 1, 10);
+        document.getElementById("nameInput").value = "";
+        document.getElementById("messageInput").value = "";
+    } catch (error) {
+        console.error("Song request could not be sent.");
+        alert("Sorry, your request could not be sent. Please try again later.");
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = "Submit";
+        }
+    }
+}
 
 
 // helper cookie storage functions to stop song request spam
