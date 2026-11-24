@@ -56,7 +56,7 @@ async function getGistTextContent(gistId){
 
 
 
-const SONG_REQUEST_ENDPOINT = "https://YOUR-WORKER-SUBDOMAIN.workers.dev/song-request";
+const SONG_REQUEST_ENDPOINT = "https://groovyrecordshow-song-requests.groovyrecordshow.workers.dev/song-request";
 
 async function sendContact(ev) {
     ev.preventDefault();
