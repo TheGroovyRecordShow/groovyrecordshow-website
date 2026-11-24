@@ -1,4 +1,5 @@
 const GUTSY_STATUS_URL = "https://broadcast.gutsyradio.org/api/nowplaying/gutsy_radio";
+const GROOVY_SHOW_DJ_NAME = "Paul from CA";
 
 async function updateShowStatus() {
     const statusLabel = document.getElementById("show-status-label");
@@ -14,16 +15,21 @@ async function updateShowStatus() {
             throw new Error("GUTSY live status is missing");
         }
 
-        if (station.live.is_live) {
-            statusLabel.textContent = "Live";
-            statusMessage.textContent = "A live show is currently on air at GUTSY Radio.";
+        const currentDJ = station.live.streamer_name?.trim().toLowerCase();
+        const isGroovyShowLive =
+            station.live.is_live &&
+            currentDJ === GROOVY_SHOW_DJ_NAME.toLowerCase();
+
+        if (isGroovyShowLive) {
+            statusLabel.textContent = "🔴 Live";
+            statusMessage.textContent = "Tune in live to The Groovy Record Show on GUTSY Radio!";
         } else {
-            statusLabel.textContent = "Off Air";
-            statusMessage.textContent = "No live show is currently on air at GUTSY Radio.";
+            statusLabel.textContent = "Offline";
+            statusMessage.textContent = "The Groovy Record Show is currently off the air.";
         }
     } catch (error) {
         statusLabel.textContent = "Unavailable";
-        statusMessage.textContent = "GUTSY Radio's live status could not be checked right now.";
+        statusMessage.textContent = "The Groovy Record Show's live status could not be checked right now.";
     }
 }
 
