@@ -1,17 +1,40 @@
-async function showIsLive() {
-    const NAME_TO_CHECK = "Paul from CA"
-    try {
-        const response = await fetch('https://public.radio.co/stations/s369d6f962/status');
-        if (!response.ok) return false;
+const GUTSY_STATUS_URL = "https://broadcast.gutsyradio.org/api/nowplaying/gutsy_radio";
+const GROOVY_SHOW_DJ_NAME = "Paul from CA";
 
-        const { source } = await response.json();
-        // console.log(source?.collaborator?.name)
-        return source?.collaborator?.name == NAME_TO_CHECK || false;
+async function updateShowStatus() {
+    const statusLabel = document.getElementById("show-status-label");
+    const statusMessage = document.getElementById("show-status-message");
+    if (!statusLabel || !statusMessage) return;
+
+    try {
+        const response = await fetch(GUTSY_STATUS_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error("GUTSY status request failed");
+
+        const station = await response.json();
+        if (typeof station.live?.is_live !== "boolean") {
+            throw new Error("GUTSY live status is missing");
+        }
+
+        const currentDJ = station.live.streamer_name?.trim().toLowerCase();
+        const isGroovyShowLive =
+            station.live.is_live &&
+            currentDJ === GROOVY_SHOW_DJ_NAME.toLowerCase();
+
+        if (isGroovyShowLive) {
+            statusLabel.textContent = "🔴 Live";
+            statusMessage.textContent = "Tune in live to The Groovy Record Show on GUTSY Radio!";
+        } else {
+            statusLabel.textContent = "Offline";
+            statusMessage.textContent = "The Groovy Record Show is currently off the air.";
+        }
     } catch (error) {
-        console.error('Error:', error);
-        return false;
+        statusLabel.textContent = "Unavailable";
+        statusMessage.textContent = "The Groovy Record Show's live status could not be checked right now.";
     }
 }
+
+updateShowStatus();
+window.setInterval(updateShowStatus, 60000);
 
 
 function handleInputChange(){
