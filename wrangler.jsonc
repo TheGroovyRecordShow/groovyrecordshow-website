@@ -1,0 +1,17 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/wrangler/config-schema.json",
+  "name": "groovyrecordshow-song-requests",
+  "main": "song-request-worker.js",
+  "compatibility_date": "2026-11-23",
+  "workers_dev": true,
+  "ratelimits": [
+    {
+      "name": "SONG_REQUEST_LIMITER",
+      "namespace_id": "2026112301",
+      "simple": {
+        "limit": 6,
+        "period": 60
+      }
+    }
+  ]
+}
