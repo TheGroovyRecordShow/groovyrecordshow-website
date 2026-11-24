@@ -61,28 +61,15 @@
 
         <h2>Show status</h2>
 
-        <div id="offline-status" >
-        <p>Radio show is: <b>Offline</b><br></p>
-
-        <p>The Groovy Record Show is currently off the air.</p>
-        </div>
-        
-        <div id="online-status" style="display: none;">
-            <p>Radio show is: <b id="status-live">🔴 Live</b><br></p>
-
-            Tune in live to The Groovy Record Show on the GUTSY radio!<br>
-            <!-- Audio feed is available here or listen at <a  href="https://gutsyradio.org">GUTSYradio.org</a><br> -->
-
+        <div id="show-status">
+            <p>GUTSY Radio is: <b id="show-status-label" aria-live="polite">Checking…</b></p>
+            <p id="show-status-message" aria-live="polite">Checking whether a live show is on air.</p>
         </div>
         <p>Next scheduled show:<br>
             <b id="next-show-date">Checking GUTSY schedule…</b>
         </p>
         <script src="calculateNextShow.js"></script>
-        <script>(async () => {
-            if(await showIsLive()){
-                document.getElementById("offline-status").style.display = "none";
-                document.getElementById("online-status").style.display = "block";
-        }})();</script>
+        
 
         <br>
             <!-- <form>
