@@ -86,6 +86,12 @@
       accent-color: white;
     }
 
+    #station-status {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: white;
+    }
+
     #player-message {
       margin: 8px 0 0;
       font-size: 12px;
@@ -104,6 +110,7 @@
     <div id="song-info">
       <p id="title">GUTSY Radio</p>
       <p id="artist">Live station stream</p>
+      <p id="station-status" aria-live="polite">Checking whether a show is on air…</p>
       <div id="volume-control-container">
         <img src="speaker.png" alt="" id="volume-icon">
         <input type="range" id="volume-control" min="0" max="100" value="80" step="1"
@@ -117,15 +124,43 @@
 
   <script>
     const GUTSY_STREAM_URL = "https://broadcast.gutsyradio.org/hls/gutsy_radio/live.m3u8";
+    const GUTSY_STATUS_URL = "https://broadcast.gutsyradio.org/api/nowplaying/gutsy_radio";
     const audio = document.getElementById("audio");
     const volumeControl = document.getElementById("volume-control");
     const playButton = document.getElementById("play-pause-button");
     const playPauseIcon = document.getElementById("play-pause-icon");
     const playerMessage = document.getElementById("player-message");
+    const stationStatus = document.getElementById("station-status");
     let hlsPlayer = null;
     let streamInitialized = false;
 
     audio.volume = volumeControl.value / 100;
+
+    async function updateStationStatus() {
+      try {
+        const response = await fetch(GUTSY_STATUS_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error("Status request failed");
+
+        const station = await response.json();
+        if (typeof station.live?.is_live !== "boolean") {
+          throw new Error("Live status is missing");
+        }
+
+        if (station.live.is_live) {
+          const host = station.live.streamer_name?.trim();
+          stationStatus.textContent = host
+            ? `A show is on air now — ${host}.`
+            : "A show is on air now.";
+        } else {
+          stationStatus.textContent = "No show is on air right now.";
+        }
+      } catch (error) {
+        stationStatus.textContent = "GUTSY show status is temporarily unavailable.";
+      }
+    }
+
+    updateStationStatus();
+    window.setInterval(updateStationStatus, 60000);
 
     function initializeStream() {
       if (streamInitialized) return true;
