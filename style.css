@@ -494,3 +494,8 @@ body {
     border: 3px solid #ffffff; /* Green */
     outline: none;
 }
+
+/* Keep the next show date readable on the dark background. */
+#next-show-date {
+    color: #fff;
+}
